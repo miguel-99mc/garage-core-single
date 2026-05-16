@@ -1,0 +1,30 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+*.seed
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+*.sqlite
+prisma/migrations/*
+/src/generated/prisma

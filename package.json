@@ -1,0 +1,29 @@
+{
+  "name": "garage-core",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspace=apps/api",
+    "start:api": "npm run dev --workspace=apps/api",
+    "start:web": "npm run dev --workspace=apps/web",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "eslint": "^8.45.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.30.0",
+    "prettier": "^3.8.1",
+    "zod": "^3.25.1"
+  },
+  "keywords": [],
+  "author": ""
+}
