@@ -7,21 +7,21 @@ export class HealthController {
 
   @Get()
   async checkHealth() {
-    const apiStatus = { status: 'ok' };
-    let databasebStatus = { status: 'ok' };
-    let code = HttpStatus.OK;
+    const result = {
+      status: 'ok',
+      services: {
+        api: 'ok',
+        database: 'ok',
+      },
+    };
 
     try {
       await this.prisma.$queryRaw`SELECT 1`;
     } catch {
-      databasebStatus = { status: 'down' };
-      code = HttpStatus.SERVICE_UNAVAILABLE;
+      result.status = 'degraded';
+      result.services.database = 'down';
     }
 
-    return {
-      api: apiStatus,
-      database: databasebStatus,
-      code,
-    };
+    return result;
   }
 }

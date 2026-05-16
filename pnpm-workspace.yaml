@@ -1,3 +1,11 @@
 packages:
-  - "apps/*"
-  # - "packages/*"
+  - apps/*
+  # - packages/*
+
+injectWorkspacePackages: true
+allowBuilds:
+  prisma: true
+  '@prisma/engines': true
+  '@nestjs/core': true
+  esbuild: true
+  '@swc/core': true

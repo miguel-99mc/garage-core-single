@@ -2,57 +2,40 @@
 # Stage 1 - Builder
 # ----------------------------
 FROM node:24-alpine AS builder
-
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Enable Corepack and activate pnpm v11
+RUN corepack enable
+RUN corepack prepare pnpm@11.1.2 --activate
 
-ENV CI=true
-
-# Copy only dependency files first (better caching)
+# Copy workspace manifest files first to maximize Docker layer cache usage
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api/package.json ./apps/api/
 
-# Install dependencies
-RUN pnpm install
+# Copy only the API package manifest first
+# This improves dependency install cache reuse when source files change
+COPY apps/api ./apps/api
 
-# Copy source AFTER install (cache optimization)
-COPY . .
+# Install dependencies using the lockfile for reproducible builds
+RUN pnpm install --frozen-lockfile
 
-# Build API
+# Build the API and generate production assets
 RUN pnpm --filter api build
-
-# Generate Prisma client
-# RUN DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN pnpm --filter api exec prisma generate
+RUN pnpm --filter api deploy --prod /app/out
 
 # ----------------------------
 # Stage 2 - Production
 # ----------------------------
 FROM node:24-alpine AS production
-
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Enable Corepack and activate pnpm v11
+RUN corepack enable && corepack prepare pnpm@11.1.2 --activate
 
 ENV NODE_ENV=production
 
-# Copy dependency files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/api/package.json ./apps/api/
+# Copy only the built application output
+COPY --from=builder /app/out .
 
-# Install ONLY production deps for API
-RUN pnpm install --filter api --prod --frozen-lockfile
-
-# Copy built app + prisma + generated client
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/node_modules ./node_modules
-
-WORKDIR /app/apps/api
-
-EXPOSE 4000
-
+# Start the application
 CMD ["node", "dist/main.js"]
