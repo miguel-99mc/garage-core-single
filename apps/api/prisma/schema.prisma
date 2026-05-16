@@ -60,16 +60,16 @@ model Car {
   model String
   plate String @unique
 
-  ownerId String
-  owner   CarOwner @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  owner     CarOwner   @relation(fields: [ownerId], references: [id])
+  carModels CarModel[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
   createdBy String?
   updatedBy String?
   deletedBy String?
-  carModels CarModel[]
 
   @@index([ownerId])
 }
