@@ -7,8 +7,126 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
+model AppSetting {
   id    String @id @default(uuid())
-  name  String
-  email String @unique
+  key   String @unique
+  value Json
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
+
+model User {
+  id        String @id @default(uuid())
+  firstName String
+  lastName  String
+  password  String
+  email     String @unique
+
+  userRoles UserRole[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@index([firstName])
+  @@index([lastName])
+}
+
+model UserRole {
+  id   String @id @default(uuid())
+  key  String @unique
+  name String @unique
+
+  users User[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
+
+model Car {
+  id    String @id @default(uuid())
+  model String
+  plate String @unique
+
+  ownerId String
+  owner   CarOwner @relation(fields: [ownerId], references: [id])
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+  carModels CarModel[]
+
+  @@index([ownerId])
+}
+
+model CarOwner {
+  id             String  @id @default(uuid())
+  firstName      String
+  lastName       String
+  phoneNumber    String?
+  secondaryPhone String?
+  address        String?
+  email          String? @unique
+  notes          String?
+
+  cars Car[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@index([firstName, lastName])
+  @@index([phoneNumber])
+}
+
+model CarBrand {
+  id   String @id @default(uuid())
+  name String @unique
+
+  models CarModel[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+}
+
+model CarModel {
+  id   String @id @default(uuid())
+  name String
+
+  brandId String
+  brand   CarBrand @relation(fields: [brandId], references: [id])
+
+  cars Car[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+  deletedBy String?
+
+  @@unique([brandId, name])
+  @@index([brandId])
 }
