@@ -27,21 +27,19 @@ COPY apps/web ./apps/web
 RUN pnpm --filter web build
 
 # ----------------------------
-# Stage 2 - Nginx (production)
+# Stage 2 - Production
 # ----------------------------
-FROM nginx:alpine
+FROM node:24-alpine AS production
 
-# Remove default files (optional)
-RUN rm -rf /usr/share/nginx/html/*
+WORKDIR /app
 
 # Copy built frontend
-COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-
-# Copy custom nginx configuration (SPA routing)
-COPY infra/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/apps/web/.next/standalone ./
+COPY --from=builder /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder /app/apps/web/public ./apps/web/public
 
 # Expose HTTP port
-EXPOSE 80
+EXPOSE 3000
 
 # Default command
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "./apps/web/server.js"]
